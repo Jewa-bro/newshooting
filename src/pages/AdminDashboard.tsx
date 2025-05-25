@@ -1339,14 +1339,14 @@ const AdminDashboard = () => {
               >
                 <Plus size={20} />
                 <span>새 팝업 등록</span>
-              </button>
-            </div>
+                        </button>
+                      </div>
 
             {error && (
               <div className="mb-4 p-3 text-red-700 bg-red-100 border border-red-300 rounded-md flex items-center">
                 <AlertTriangle size={20} className="mr-2" />
                 {error}
-              </div>
+                    </div>
             )}
 
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -1366,7 +1366,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <div className="font-medium hover:text-blue-600 cursor-pointer" onClick={() => navigate(`popup/edit/${popup.id}`)}>
                           {popup.title}
-                        </div>
+                  </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {new Date(popup.start_date).toLocaleDateString()} ~ {new Date(popup.end_date).toLocaleDateString()}
@@ -1426,38 +1426,38 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {!isFormPage && ( // Conditionally render the sidebar
-        <aside className="w-64 bg-white shadow-md flex flex-col">
-          <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-blue-600">관리자 대시보드</h1>
-          </div>
-          <nav className="flex-1 p-4 space-y-2">
+      <aside className="w-64 bg-white shadow-md flex flex-col">
+        <div className="p-6 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-blue-600">관리자 대시보드</h1>
+        </div>
+        <nav className="flex-1 p-4 space-y-2">
             {(['applications', 'business', 'notices', 'popups'] as const).map((item) => (
-              <button
-                key={item}
-                onClick={() => setActiveTab(item)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-150
-                  ${activeTab === item ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-800'}`}
-              >
-                {item === 'applications' && <Calendar size={20} />}
-                {item === 'business' && <ImagePlus size={20} />}
-                {item === 'notices' && <Bell size={20} />}
-                {item === 'popups' && <ImagePlus size={20} />}
-                <span className="font-medium">
-                  {item === 'applications' ? '신청 현황' : item === 'business' ? '사업 관리' : item === 'notices' ? '공지사항 관리' : '팝업 관리'}
-                </span>
-              </button>
-            ))}
-          </nav>
-          <div className="p-4 border-t border-gray-200">
             <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150 shadow-md"
+              key={item}
+              onClick={() => setActiveTab(item)}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-150
+                ${activeTab === item ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-800'}`}
             >
-              <LogOut size={20} />
-              <span className="font-medium">로그아웃</span>
+              {item === 'applications' && <Calendar size={20} />}
+              {item === 'business' && <ImagePlus size={20} />}
+              {item === 'notices' && <Bell size={20} />}
+                {item === 'popups' && <ImagePlus size={20} />}
+              <span className="font-medium">
+                  {item === 'applications' ? '신청 현황' : item === 'business' ? '사업 관리' : item === 'notices' ? '공지사항 관리' : '팝업 관리'}
+              </span>
             </button>
-          </div>
-        </aside>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150 shadow-md"
+          >
+            <LogOut size={20} />
+            <span className="font-medium">로그아웃</span>
+          </button>
+        </div>
+      </aside>
       )}
 
       <main className="flex-1 p-8 overflow-y-auto">
