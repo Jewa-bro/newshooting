@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -37,11 +37,39 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
       setShowPopup(true);
       console.log('[PopupModal] Preview mode: Displaying popupToPreview', popupToPreview);
     } else if (!isPreview) {
+      // fetchActivePopups(); // 일반 모드 팝업 로드는 다른 useEffect에서 처리
+    }
+  }, [isPreview, popupToPreview]);
+
+  useEffect(() => {
+    if (!isPreview) {
       fetchActivePopups();
     }
-  }, [isPreview, popupToPreview]); // popupToPreview가 변경될 때도 미리보기 업데이트
+  }, [isPreview]); // isPreview가 false일 때만 실행
 
-  const fetchActivePopups = async () => {
+  useEffect(() => {
+    const handleScroll = () => {
+      if (showPopup) {
+        console.log('[PopupModal] Window scrolled while popup is shown. Closing popup.');
+        handleClose();
+      }
+    };
+
+    if (showPopup) {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      // 팝업이 열리면 body 스크롤을 막을 수 있습니다. (선택 사항)
+      // document.body.style.overflow = 'hidden';
+    } else {
+      // document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      // document.body.style.overflow = 'unset'; // 컴포넌트 언마운트 시 스크롤 복원
+    };
+  }, [showPopup]); // showPopup 상태에 따라 리스너 추가/제거
+
+  const fetchActivePopups = useCallback(async () => {
     try {
       const now = new Date().toISOString();
       console.log('[PopupModal] fetchActivePopups: Fetching active popups...');
@@ -88,13 +116,13 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
       console.error('[PopupModal] Error fetching popups:', err);
       setShowPopup(false);
     }
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (isPreview && onClosePreview) {
       console.log('[PopupModal] Preview mode: Closing via onClosePreview.');
       onClosePreview();
-      setShowPopup(false); // 내부 상태도 닫음
+      setShowPopup(false);
     } else if (!isPreview) {
       console.log(`[PopupModal] Normal mode: handleClose called. Current index: ${currentPopupIndex}, Popups length: ${popups.length}`);
       if (currentPopupIndex < popups.length - 1) {
@@ -105,57 +133,47 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
         console.log('[PopupModal] Normal mode: All popups shown or closed. Hiding modal.');
       }
     } else {
-      // isPreview인데 onClosePreview가 없을 경우 (일반적으로는 발생하지 않아야 함)
       setShowPopup(false);
     }
-  };
+  }, [isPreview, onClosePreview, currentPopupIndex, popups.length]);
 
-  const handleHideToday = () => {
-    if (isPreview) { // 미리보기 모드에서는 이 기능 사용 안 함
-      console.log('[PopupModal] Preview mode: handleHideToday called, but disabled in preview.');
-      handleClose(); // 단순 닫기로 처리
+  const handleHideToday = useCallback(() => {
+    if (isPreview) {
+      handleClose();
       return;
     }
     const currentPopupToHide = popups[currentPopupIndex];
-    console.log('[PopupModal] handleHideToday: currentPopupToHide', currentPopupToHide);
     if (currentPopupToHide && currentPopupToHide.id) {
       const hideUntilKey = `popup_${currentPopupToHide.id}_hide_until`;
       const hideUntilValue = new Date().setHours(23, 59, 59, 999).toString();
-      console.log(`[PopupModal] Setting localStorage: Key=${hideUntilKey}, Value=${hideUntilValue}`);
       localStorage.setItem(hideUntilKey, hideUntilValue);
-    } else {
-      console.error('[PopupModal] handleHideToday: currentPopupToHide or its ID is invalid.');
     }
     handleClose();
-  };
+  }, [isPreview, popups, currentPopupIndex, handleClose]);
 
-  const handleNavigateToNotice = () => {
+  const handleNavigateToNotice = useCallback(() => {
     const currentPopupToNavigate = popups[currentPopupIndex];
-    console.log('[PopupModal] handleNavigateToNotice: currentPopupToNavigate', currentPopupToNavigate);
     if (currentPopupToNavigate && currentPopupToNavigate.linked_notice_id) {
       navigate(`/notice/${currentPopupToNavigate.linked_notice_id}`);
-      if (isPreview && onClosePreview) { // 미리보기 닫기 콜백이 있다면 실행
+      if (isPreview && onClosePreview) {
         onClosePreview();
       }
-      setShowPopup(false); // 공통적으로 팝업은 닫음
+      setShowPopup(false);
     }
-  };
+  }, [popups, currentPopupIndex, navigate, isPreview, onClosePreview]);
 
-  const handleBackgroundClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleBackgroundClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (modalContainerRef.current && !modalContainerRef.current.contains(event.target as Node)) {
-      console.log('[PopupModal] Background effectively clicked (outside content).');
-      handleClose(); // 닫기 로직은 handleClose에 위임 (미리보기/일반 모드 자동 처리)
-    } else {
-      console.log('[PopupModal] Click was inside modal content or ref not set, or target is not part of the check.');
+      handleClose();
     }
-  };
+  }, [handleClose]);
 
   if (!showPopup) return null;
-  if (isPreview && (!popupToPreview || popups.length === 0)) return null; // 미리보기인데 대상이 없으면 null
-  if (!isPreview && (popups.length === 0 || currentPopupIndex >= popups.length)) return null; // 일반모드 조건
+  if (isPreview && (!popupToPreview || popups.length === 0)) return null;
+  if (!isPreview && (popups.length === 0 || currentPopupIndex >= popups.length)) return null;
   
-  const currentPopup = popups[currentPopupIndex]; // popups 배열은 isPreview에 따라 이미 다르게 설정됨
-  if (!currentPopup) return null; // 혹시 모를 상황 대비
+  const currentPopup = popups[currentPopupIndex];
+  if (!currentPopup) return null;
 
   console.log(`[PopupModal] Rendering popup (ID: ${currentPopup.id}, Title: ${currentPopup.title}, isPreview: ${isPreview})`);
 
@@ -165,10 +183,10 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
       aria-labelledby="modal-title" 
       role="dialog" 
       aria-modal="true"
-      onClick={handleBackgroundClick}
     >
       <div 
         className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+        onClick={handleBackgroundClick}
       >
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>

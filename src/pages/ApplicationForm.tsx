@@ -61,6 +61,9 @@ const programs = [
 const ApplicationForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  // NoticeDetail로부터 state로 전달받은 businessId와 businessName을 확인
+  const passedState = location.state as { businessId?: string; businessName?: string } | undefined;
+
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +80,7 @@ const ApplicationForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 모든 모집 중인 사업 가져오기
+        setLoading(true); // 데이터를 가져오기 시작할 때 로딩 상태로 설정
         const { data: businessesData, error: businessesError } = await supabase
           .from('businesses')
           .select('*')
@@ -85,15 +88,28 @@ const ApplicationForm = () => {
           .order('created_at', { ascending: false });
 
         if (businessesError) throw businessesError;
-        setBusinesses(businessesData || []);
+        const activeBusinesses = businessesData || [];
+        setBusinesses(activeBusinesses);
 
-        // URL에서 noticeId와 businessId 파라미터 확인
+        // 1. location.state로부터 businessId 우선 확인
+        if (passedState?.businessId) {
+          const businessFromState = activeBusinesses.find(b => b.id === passedState.businessId);
+          if (businessFromState) {
+            setSelectedBusiness(businessFromState);
+            console.log('[ApplicationForm] Business selected from state:', businessFromState.name);
+            setLoading(false); // 상태에서 비즈니스 찾으면 로딩 완료
+            return; // 상태에서 찾았으므로 추가 로직 불필요
+          } else {
+            console.warn(`[ApplicationForm] Business with ID ${passedState.businessId} from state not found or not recruiting.`);
+          }
+        }
+
+        // 2. URL 파라미터 확인 (기존 로직)
         const params = new URLSearchParams(location.search);
         const noticeId = params.get('noticeId');
-        const businessId = params.get('businessId');
+        const queryBusinessId = params.get('businessId'); // 이름 변경 to avoid conflict
 
         if (noticeId) {
-          // 공지사항에 연결된 사업 정보 가져오기
           const { data: noticeData, error: noticeError } = await supabase
             .from('notices')
             .select('business_id')
@@ -103,28 +119,35 @@ const ApplicationForm = () => {
           if (noticeError) throw noticeError;
           
           if (noticeData?.business_id) {
-            const business = businessesData?.find(b => b.id === noticeData.business_id);
+            const business = activeBusinesses.find(b => b.id === noticeData.business_id);
             if (business) {
               setSelectedBusiness(business);
+            } else {
+              console.warn(`[ApplicationForm] Business linked to notice ${noticeId} not found or not recruiting.`);
             }
           }
-        } else if (businessId) {
-          // 직접 businessId가 제공된 경우
-          const business = businessesData?.find(b => b.id === businessId);
+        } else if (queryBusinessId) {
+          const business = activeBusinesses.find(b => b.id === queryBusinessId);
           if (business) {
             setSelectedBusiness(business);
+          } else {
+            console.warn(`[ApplicationForm] Business with ID ${queryBusinessId} from URL param not found or not recruiting.`);
           }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('데이터를 불러오는 중 오류가 발생했습니다.');
       } finally {
-        setLoading(false);
+        // fetchData 함수가 어떤 경로로든 완료되면 로딩 상태 해제
+        // (state에서 이미 찾아서 setLoading(false) 된 경우는 제외)
+        if (loading) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-  }, [location]);
+  }, [location, passedState]); // passedState를 의존성 배열에 추가
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

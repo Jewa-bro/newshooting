@@ -6,7 +6,6 @@ import logoSrc from '/logo.svg';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [logoClicks, setLogoClicks] = useState(0);
   const { triggerAnimation } = useAnimation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -19,20 +18,6 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (logoClicks === 3) {
-      window.scrollTo(0, 0);
-      navigate('/admin/login');
-      setLogoClicks(0);
-    }
-
-    const timer = setTimeout(() => {
-      setLogoClicks(0);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [logoClicks, navigate]);
 
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
@@ -59,7 +44,6 @@ const Header = () => {
   };
 
   const handleLogoClick = () => {
-    setLogoClicks(prev => prev + 1);
     if (location.pathname === '/') {
       triggerAnimation();
     } else {

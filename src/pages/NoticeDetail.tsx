@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, MouseEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, Session as SupabaseSession, AuthChangeEvent } from '../lib/supabase';
 
 interface Notice {
   id: string;
@@ -28,97 +28,111 @@ const NoticeDetail = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchNotice = useCallback(async () => {
-    console.log('[fetchNotice] Called. Checking current auth state...');
-    const { data: { session: currentSession } } = await supabase.auth.getSession();
-    if (currentSession) {
-      console.log(`[fetchNotice] Session found. User ID: ${currentSession.user.id}, Role: ${currentSession.user.role}`);
-      console.log(`[fetchNotice] Access Token (first 20 chars): ${currentSession.access_token.substring(0, 20)}...`);
-    } else {
-      console.log('[fetchNotice] No active session found by getSession() before API calls. Expecting anon key to be used.');
+  const fetchNotice = async () => {
+    console.log('[NoticeDetail] fetchNotice called. ID from closure:', id);
+
+    if (!id) {
+      console.warn('[NoticeDetail] fetchNotice called without an ID. Aborting fetch.');
+      setNotice(null);
+      setBusiness(null);
+      console.log('[NoticeDetail] Setting loading to false (id is null/undefined)');
+      setLoading(false);
+      return;
     }
 
-    setLoading(true); // fetchNotice 시작 시 로딩 활성화
+    console.log(`[NoticeDetail] Proceeding to fetch notice for ID: ${id}. Setting loading to true.`);
+    setLoading(true);
     try {
-      const { data: noticeData, error: noticeError } = await supabase
+      console.log(`[NoticeDetail] Attempting to fetch notice for ID: ${id} from Supabase.`);
+      
+      console.log(`[NoticeDetail] Preparing Supabase query for notices, ID: ${id}.`);
+      const noticePromise = supabase
         .from('notices')
         .select('*')
         .eq('id', id)
         .single();
+      console.log(`[NoticeDetail] Supabase notice query promise created for ID: ${id}. Awaiting...`);
+      const { data: noticeData, error: noticeError } = await noticePromise;
+      console.log(`[NoticeDetail] Supabase notice query awaited for ID: ${id}. Error: ${JSON.stringify(noticeError)}, HasData: ${!!noticeData}`);
 
       if (noticeError) {
         console.error('Error fetching notice data:', noticeError);
         setNotice(null);
         setBusiness(null);
-        throw noticeError;
-      }
-      
-      setNotice(noticeData);
+      } else {
+        setNotice(noticeData);
 
-      if (noticeData && noticeData.business_id) {
-        try {
-          // 이전에 여기에 있던 await supabase.auth.getSession(); 제거됨
-          const { data: businessArray, error: businessError } = await supabase
-            .from('businesses')
-            .select('*')
-            .eq('id', noticeData.business_id)
-            .limit(1);
+        if (noticeData && noticeData.business_id) {
+          try {
+            const { data: businessArray, error: businessError } = await supabase
+              .from('businesses')
+              .select('*')
+              .eq('id', noticeData.business_id)
+              .limit(1);
 
-          if (businessError) {
-            console.error('Error fetching business data specifically:', businessError);
-            setBusiness(null);
-          } else if (businessArray && businessArray.length > 0) {
-            setBusiness(businessArray[0]);
-          } else {
-            console.warn(`[fetchNotice] Business not found for id: ${noticeData.business_id} (or RLS prevented access)`);
+            if (businessError) {
+              console.error('Error fetching business data specifically:', businessError);
+              setBusiness(null);
+            } else if (businessArray && businessArray.length > 0) {
+              setBusiness(businessArray[0]);
+            } else {
+              console.warn(`[NoticeDetail] Business not found for id: ${noticeData.business_id}`);
+              setBusiness(null);
+            }
+          } catch (innerError: any) {
+            console.error('Error during business data fetch (inner catch):', innerError);
             setBusiness(null);
           }
-        } catch (innerError: any) {
-          console.error('Error during business data fetch (inner catch):', innerError);
+        } else {
           setBusiness(null);
         }
-      } else {
-        setBusiness(null);
       }
     } catch (error: any) {
-      console.error('Overall error in fetchNotice:', error);
+      console.error('Overall error in fetchNotice (outer catch):', error);
+      setNotice(null);
+      setBusiness(null);
     } finally {
-      setLoading(false); // fetchNotice 완료 시 로딩 비활성화
+      console.log('[NoticeDetail] fetchNotice finished. Attempting to set loading to false.');
+      setLoading(false);
     }
-  }, [id]);
+  };
 
   useEffect(() => {
-    setLoading(true); // 컴포넌트 마운트 또는 fetchNotice 변경 시 로딩 시작
-    console.log('[useEffect] Setting up onAuthStateChange listener.');
+    console.log('[NoticeDetail] useEffect runs. Current ID from useParams:', id);
+    console.log('[NoticeDetail] Initial call to fetchNotice from useEffect.');
+    fetchNotice();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log(`[Auth State Change] Event: ${event}`);
-        if (session) {
-          console.log(`[Auth State Change] Session User ID: ${session.user.id}, Role: ${session.user.role}`);
-        } else {
-          console.log('[Auth State Change] No session object in this event.');
-        }
-
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-          console.log('[Auth State Change] Event is INITIAL_SESSION or SIGNED_IN. Calling fetchNotice.');
-          await fetchNotice();
+      async (event: AuthChangeEvent, session: SupabaseSession | null) => {
+        console.log(`[NoticeDetail Auth] Event: ${event}, Session: ${session ? 'exists' : 'null'}. Current ID: ${id}`);
+        
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+            console.log(`[NoticeDetail Auth] Relevant auth event ${event}. Preparing to call fetchNotice.`);
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+              console.log(`[NoticeDetail Auth] Adding 100ms delay for ${event} before calling fetchNotice.`);
+              await new Promise(resolve => setTimeout(resolve, 100));
+              console.log(`[NoticeDetail Auth] Delay finished for ${event}. Now calling fetchNotice.`);
+            }
+            await fetchNotice();
         } else if (event === 'SIGNED_OUT') {
-          console.log('[Auth State Change] Event is SIGNED_OUT. Clearing data and stopping loading.');
-          setNotice(null);
-          setBusiness(null);
-          setLoading(false); 
+            console.log('[NoticeDetail Auth] User SIGNED_OUT. Setting loading to false.');
+            setLoading(false); 
         }
       }
     );
-
+    
     return () => {
-      console.log('[useEffect] Cleaning up onAuthStateChange listener.');
+      console.log('[NoticeDetail] Cleaning up onAuthStateChange listener.');
       if (authListener && authListener.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [fetchNotice]);
+  }, [id, supabase]);
+
+  const handleGoToList = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate('/');
+  };
 
   if (loading) {
     return (
@@ -172,40 +186,6 @@ const NoticeDetail = () => {
               dangerouslySetInnerHTML={{ __html: notice.content }}
             />
 
-            {/* 임시 디버깅 코드 시작 */}
-            {notice && (
-              <div style={{ backgroundColor: 'lightblue', padding: '10px', margin: '10px 0', border: '1px solid blue' }}>
-                <h3 style={{ color: 'blue', margin: '0 0 5px 0' }}>DEBUG INFO: Notice Object</h3>
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '12px' }}>
-                  {JSON.stringify(notice, null, 2)}
-                </pre>
-              </div>
-            )}
-            {!notice && (
-              <div style={{ backgroundColor: 'lightpink', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
-                 <h3 style={{ color: 'red', margin: '0 0 5px 0' }}>DEBUG INFO: Notice Object</h3>
-                <p style={{ fontSize: '12px' }}>Notice object is NULL or undefined.</p>
-              </div>
-            )}
-
-            {business && (
-              <div style={{ backgroundColor: 'lightyellow', padding: '10px', margin: '10px 0', border: '1px solid orange' }}>
-                <h3 style={{ color: 'orange', margin: '0 0 5px 0' }}>DEBUG INFO: Business Object</h3>
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '12px' }}>
-                  {JSON.stringify(business, null, 2)}
-                </pre>
-                <p style={{ marginTop: '5px', fontSize: '12px' }}>Status: <strong>{business.status}</strong></p>
-                <p style={{ fontSize: '12px' }}>Is Status 'recruiting': <strong>{String(business.status === 'recruiting')}</strong></p>
-              </div>
-            )}
-            {!business && (
-              <div style={{ backgroundColor: 'lightpink', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
-                <h3 style={{ color: 'red', margin: '0 0 5px 0' }}>DEBUG INFO: Business Object</h3>
-                <p style={{ fontSize: '12px' }}>Business object is NULL or undefined.</p>
-              </div>
-            )}
-            {/* 임시 디버깅 코드 끝 */}
-
             {business && business.status === 'recruiting' && (
               <div className="mb-8 p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-start space-x-3">
@@ -218,6 +198,7 @@ const NoticeDetail = () => {
                     <p className="mt-2 text-blue-800">{business.description}</p>
                     <Link
                       to="/apply"
+                      state={{ businessId: business.id, businessName: business.name }}
                       className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       신청하기
@@ -230,16 +211,7 @@ const NoticeDetail = () => {
             <div className="flex justify-between items-center pt-6 border-t border-gray-200">
               <Link
                 to="/"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/');
-                  setTimeout(() => {
-                    const noticeSection = document.getElementById('notice');
-                    if (noticeSection) {
-                      noticeSection.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }, 100);
-                }}
+                onClick={handleGoToList}
                 className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
