@@ -112,6 +112,25 @@ const NoticeDetail = () => {
               dangerouslySetInnerHTML={{ __html: notice.content }}
             />
 
+            {/* 임시 디버깅 코드 시작 */}
+            {business && (
+              <div style={{ backgroundColor: 'lightyellow', padding: '10px', margin: '10px 0', border: '1px solid orange' }}>
+                <h3 style={{ color: 'orange', margin: '0 0 5px 0' }}>DEBUG INFO: Business Object</h3>
+                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '12px' }}>
+                  {JSON.stringify(business, null, 2)}
+                </pre>
+                <p style={{ marginTop: '5px', fontSize: '12px' }}>Status: <strong>{business.status}</strong></p>
+                <p style={{ fontSize: '12px' }}>Is Status 'recruiting': <strong>{String(business.status === 'recruiting')}</strong></p>
+              </div>
+            )}
+            {!business && (
+              <div style={{ backgroundColor: 'lightpink', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+                <h3 style={{ color: 'red', margin: '0 0 5px 0' }}>DEBUG INFO: Business Object</h3>
+                <p style={{ fontSize: '12px' }}>Business object is NULL or undefined.</p>
+              </div>
+            )}
+            {/* 임시 디버깅 코드 끝 */}
+
             {business && business.status === 'recruiting' && (
               <div className="mb-8 p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-start space-x-3">
