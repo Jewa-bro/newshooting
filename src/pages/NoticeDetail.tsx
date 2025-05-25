@@ -52,17 +52,17 @@ const NoticeDetail = () => {
 
       if (noticeData && noticeData.business_id) {
         try {
-          const { data: businessData, error: businessError } = await supabase
+          const { data: businessArray, error: businessError } = await supabase
             .from('businesses')
             .select('*')
             .eq('id', noticeData.business_id)
-            .single();
+            .limit(1);
 
           if (businessError) {
             console.error('Error fetching business data specifically:', businessError);
             setBusiness(null);
-          } else if (businessData) {
-            setBusiness(businessData);
+          } else if (businessArray && businessArray.length > 0) {
+            setBusiness(businessArray[0]);
           } else {
             console.warn(`Business not found for id: ${noticeData.business_id}`);
             setBusiness(null);
