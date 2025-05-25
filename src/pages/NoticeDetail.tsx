@@ -33,6 +33,7 @@ const NoticeDetail = () => {
   }, [id]);
 
   const fetchNotice = async () => {
+    setLoading(true);
     try {
       const { data: noticeData, error: noticeError } = await supabase
         .from('notices')
@@ -40,21 +41,41 @@ const NoticeDetail = () => {
         .eq('id', id)
         .single();
 
-      if (noticeError) throw noticeError;
+      if (noticeError) {
+        console.error('Error fetching notice data:', noticeError);
+        setNotice(null);
+        setBusiness(null);
+        throw noticeError;
+      }
+      
       setNotice(noticeData);
 
-      if (noticeData?.business_id) {
-        const { data: businessData, error: businessError } = await supabase
-          .from('businesses')
-          .select('*')
-          .eq('id', noticeData.business_id)
-          .single();
+      if (noticeData && noticeData.business_id) {
+        try {
+          const { data: businessData, error: businessError } = await supabase
+            .from('businesses')
+            .select('*')
+            .eq('id', noticeData.business_id)
+            .single();
 
-        if (businessError) throw businessError;
-        setBusiness(businessData);
+          if (businessError) {
+            console.error('Error fetching business data specifically:', businessError);
+            setBusiness(null);
+          } else if (businessData) {
+            setBusiness(businessData);
+          } else {
+            console.warn(`Business not found for id: ${noticeData.business_id}`);
+            setBusiness(null);
+          }
+        } catch (innerError) {
+          console.error('Error during business data fetch (inner catch):', innerError);
+          setBusiness(null);
+        }
+      } else {
+        setBusiness(null);
       }
     } catch (error) {
-      console.error('Error fetching notice:', error);
+      console.error('Overall error in fetchNotice:', error);
     } finally {
       setLoading(false);
     }
