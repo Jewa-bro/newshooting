@@ -29,7 +29,16 @@ const NoticeDetail = () => {
   const navigate = useNavigate();
 
   const fetchNotice = useCallback(async () => {
-    setLoading(true);
+    console.log('[fetchNotice] Called. Checking current auth state...');
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    if (currentSession) {
+      console.log(`[fetchNotice] Session found. User ID: ${currentSession.user.id}, Role: ${currentSession.user.role}`);
+      console.log(`[fetchNotice] Access Token (first 20 chars): ${currentSession.access_token.substring(0, 20)}...`);
+    } else {
+      console.log('[fetchNotice] No active session found by getSession() before API calls. Expecting anon key to be used.');
+    }
+
+    setLoading(true); // fetchNotice 시작 시 로딩 활성화
     try {
       const { data: noticeData, error: noticeError } = await supabase
         .from('notices')
@@ -48,8 +57,7 @@ const NoticeDetail = () => {
 
       if (noticeData && noticeData.business_id) {
         try {
-          await supabase.auth.getSession();
-
+          // 이전에 여기에 있던 await supabase.auth.getSession(); 제거됨
           const { data: businessArray, error: businessError } = await supabase
             .from('businesses')
             .select('*')
@@ -62,7 +70,7 @@ const NoticeDetail = () => {
           } else if (businessArray && businessArray.length > 0) {
             setBusiness(businessArray[0]);
           } else {
-            console.warn(`Business not found for id: ${noticeData.business_id}`);
+            console.warn(`[fetchNotice] Business not found for id: ${noticeData.business_id} (or RLS prevented access)`);
             setBusiness(null);
           }
         } catch (innerError: any) {
@@ -75,36 +83,42 @@ const NoticeDetail = () => {
     } catch (error: any) {
       console.error('Overall error in fetchNotice:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // fetchNotice 완료 시 로딩 비활성화
     }
   }, [id]);
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(true); // 컴포넌트 마운트 또는 fetchNotice 변경 시 로딩 시작
+    console.log('[useEffect] Setting up onAuthStateChange listener.');
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event:', event, 'Session:', session ? 'exists' : 'null');
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-            await fetchNotice();
-        } else if (event === 'SIGNED_OUT') {
-            setNotice(null);
-            setBusiness(null);
-            setLoading(false);
+        console.log(`[Auth State Change] Event: ${event}`);
+        if (session) {
+          console.log(`[Auth State Change] Session User ID: ${session.user.id}, Role: ${session.user.role}`);
+        } else {
+          console.log('[Auth State Change] No session object in this event.');
         }
-        
-        if (event === 'INITIAL_SESSION' && !session) {
-             if (!notice) {
-             }
+
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+          console.log('[Auth State Change] Event is INITIAL_SESSION or SIGNED_IN. Calling fetchNotice.');
+          await fetchNotice();
+        } else if (event === 'SIGNED_OUT') {
+          console.log('[Auth State Change] Event is SIGNED_OUT. Clearing data and stopping loading.');
+          setNotice(null);
+          setBusiness(null);
+          setLoading(false); 
         }
       }
     );
 
     return () => {
+      console.log('[useEffect] Cleaning up onAuthStateChange listener.');
       if (authListener && authListener.subscription) {
         authListener.subscription.unsubscribe();
       }
     };
-  }, [fetchNotice, id]);
+  }, [fetchNotice]);
 
   if (loading) {
     return (
