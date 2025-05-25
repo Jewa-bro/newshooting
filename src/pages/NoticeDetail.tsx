@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -28,11 +28,7 @@ const NoticeDetail = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchNotice();
-  }, [id]);
-
-  const fetchNotice = async () => {
+  const fetchNotice = useCallback(async () => {
     setLoading(true);
     try {
       const { data: noticeData, error: noticeError } = await supabase
@@ -79,7 +75,16 @@ const NoticeDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      await supabase.auth.getSession();
+      fetchNotice();
+    };
+
+    loadData();
+  }, [fetchNotice]);
 
   if (loading) {
     return (
