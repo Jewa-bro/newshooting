@@ -75,8 +75,9 @@ const MainContent = () => {
 };
 
 function App() {
+  // console.log('Vite base URL:', import.meta.env.BASE_URL);
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}> 
       <AppContent />
     </Router>
   );
