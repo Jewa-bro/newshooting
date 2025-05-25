@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trophy, Medal, Award } from 'lucide-react';
+import instructorProfileSrc from '/images/instructor_profile.jpg';
 
 const InstructorSection = () => {
   return (
@@ -13,7 +14,7 @@ const InstructorSection = () => {
             <div className="md:w-1/3 bg-blue-900 text-white p-8 flex flex-col items-center justify-center">
               <div className="w-32 h-32 rounded-full bg-white/10 mb-4 flex items-center justify-center overflow-hidden">
                 <img
-                  src="/images/instructor_profile.jpg"
+                  src={instructorProfileSrc}
                   alt="박희복 지도자"
                   className="w-full h-full object-cover"
                 />

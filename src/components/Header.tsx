@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAnimation } from '../context/AnimationContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import logoSrc from '/logo.svg';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -83,7 +84,7 @@ const Header = () => {
           onClick={handleLogoClick}
         >
           <img 
-            src="/logo.svg" 
+            src={logoSrc}
             alt="대전HB슈팅클럽 로고" 
             className="h-8 w-8 sm:h-10 sm:w-10 mr-2"
           />

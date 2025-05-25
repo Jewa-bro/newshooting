@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import logoSrc from '/logo.svg';
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-8">
           <div className="flex items-center mb-6 md:mb-0">
             <img 
-              src="/logo.svg" 
+              src={logoSrc} 
               alt="대전HB슈팅클럽 로고" 
               className="h-8 w-8 mr-2"
             />
