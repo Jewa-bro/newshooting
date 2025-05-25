@@ -113,6 +113,21 @@ const NoticeDetail = () => {
             />
 
             {/* 임시 디버깅 코드 시작 */}
+            {notice && (
+              <div style={{ backgroundColor: 'lightblue', padding: '10px', margin: '10px 0', border: '1px solid blue' }}>
+                <h3 style={{ color: 'blue', margin: '0 0 5px 0' }}>DEBUG INFO: Notice Object</h3>
+                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '12px' }}>
+                  {JSON.stringify(notice, null, 2)}
+                </pre>
+              </div>
+            )}
+            {!notice && (
+              <div style={{ backgroundColor: 'lightpink', padding: '10px', margin: '10px 0', border: '1px solid red' }}>
+                 <h3 style={{ color: 'red', margin: '0 0 5px 0' }}>DEBUG INFO: Notice Object</h3>
+                <p style={{ fontSize: '12px' }}>Notice object is NULL or undefined.</p>
+              </div>
+            )}
+
             {business && (
               <div style={{ backgroundColor: 'lightyellow', padding: '10px', margin: '10px 0', border: '1px solid orange' }}>
                 <h3 style={{ color: 'orange', margin: '0 0 5px 0' }}>DEBUG INFO: Business Object</h3>
