@@ -48,6 +48,8 @@ const NoticeDetail = () => {
 
       if (noticeData && noticeData.business_id) {
         try {
+          await supabase.auth.getSession();
+
           const { data: businessArray, error: businessError } = await supabase
             .from('businesses')
             .select('*')
@@ -63,14 +65,14 @@ const NoticeDetail = () => {
             console.warn(`Business not found for id: ${noticeData.business_id}`);
             setBusiness(null);
           }
-        } catch (innerError) {
+        } catch (innerError: any) {
           console.error('Error during business data fetch (inner catch):', innerError);
           setBusiness(null);
         }
       } else {
         setBusiness(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Overall error in fetchNotice:', error);
     } finally {
       setLoading(false);
@@ -78,13 +80,31 @@ const NoticeDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    const loadData = async () => {
-      await supabase.auth.getSession();
-      fetchNotice();
-    };
+    setLoading(true);
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth event:', event, 'Session:', session ? 'exists' : 'null');
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+            await fetchNotice();
+        } else if (event === 'SIGNED_OUT') {
+            setNotice(null);
+            setBusiness(null);
+            setLoading(false);
+        }
+        
+        if (event === 'INITIAL_SESSION' && !session) {
+             if (!notice) {
+             }
+        }
+      }
+    );
 
-    loadData();
-  }, [fetchNotice]);
+    return () => {
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, [fetchNotice, id]);
 
   if (loading) {
     return (
