@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const slideImages = [
-  '/images/slide_image_1.jpg',
-  '/images/slide_image_2.jpg',
-  '/images/slide_image_3.jpg'
-];
-
 const IntroSection = () => {
+  const slideImages = [
+    `${import.meta.env.BASE_URL}images/slide_image_1.jpg`,
+    `${import.meta.env.BASE_URL}images/slide_image_2.jpg`,
+    `${import.meta.env.BASE_URL}images/slide_image_3.jpg`
+  ];
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
