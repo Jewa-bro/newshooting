@@ -139,7 +139,7 @@ const AdminDashboard = () => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        navigate('/auth');
+        navigate('/admin/login');
       } else {
         fetchInitialData();
       }
@@ -1449,6 +1449,16 @@ const AdminDashboard = () => {
           ))}
         </nav>
         <div className="p-4 border-t border-gray-200">
+          {/* Site Home Link */}
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center w-full px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150 mb-2"
+          >
+            <ExternalLink className="w-5 h-5 mr-3" />
+            사이트 홈으로
+          </button>
+
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-150 shadow-md"

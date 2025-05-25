@@ -146,20 +146,15 @@ const NoticeSection = () => {
                   
                   <div 
                     className={`transition-all duration-300 ease-in-out overflow-hidden bg-gray-50 ${
-                      activeNotice === notice.id ? 'max-h-96' : 'max-h-0'
+                      activeNotice === notice.id ? 'max-h-[500px]' : 'max-h-0'
                     }`}
                   >
                     <div className="p-5 border-t border-gray-100">
-                      <div className="relative">
-                        <p 
-                          ref={el => contentRefs.current[notice.id] = el}
-                          className="text-gray-700 leading-relaxed mb-4 overflow-hidden line-clamp-5"
-                        >
-                          {notice.content}
-                        </p>
-                        {contentHeights[notice.id] && (
-                          <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-50"></div>
-                        )}
+                      <div 
+                        ref={el => contentRefs.current[notice.id] = el}
+                        className="text-gray-700 leading-relaxed mb-4 overflow-hidden rich-text-content"
+                        dangerouslySetInnerHTML={{ __html: notice.content }} 
+                      >
                       </div>
                       <button 
                         onClick={(e) => {

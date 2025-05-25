@@ -107,11 +107,10 @@ const NoticeDetail = () => {
               </p>
             </div>
             
-            <div className="prose max-w-none mb-8">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {notice.content}
-              </p>
-            </div>
+            <div 
+              className="prose max-w-none mb-8 rich-text-content"
+              dangerouslySetInnerHTML={{ __html: notice.content }}
+            />
 
             {business && business.status === 'recruiting' && (
               <div className="mb-8 p-4 bg-blue-50 rounded-lg">
