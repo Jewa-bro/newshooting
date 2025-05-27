@@ -23,10 +23,12 @@ const LocationSection = () => {
           scaleControl: false,
           logoControl: false,
           mapDataControl: false,
-          zoomControl: true,
-          zoomControlOptions: {
-            position: window.naver.maps.Position.TOP_RIGHT,
-          }
+          zoomControl: false,
+          draggable: false,
+          scrollWheel: false,
+          disableDoubleClickZoom: true,
+          disableKineticPan: true,
+          keyboardShortcuts: false,
         };
 
         const map = new window.naver.maps.Map(mapRef.current, mapOptions);
