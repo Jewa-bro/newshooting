@@ -48,26 +48,17 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
   }, [isPreview]); // isPreview가 false일 때만 실행
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (showPopup) {
-        console.log('[PopupModal] Window scrolled while popup is shown. Closing popup.');
-        handleClose();
-      }
-    };
-
     if (showPopup) {
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      // 팝업이 열리면 body 스크롤을 막을 수 있습니다. (선택 사항)
-      // document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
     } else {
-      // document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset';
     }
 
+    // 컴포넌트 언마운트 시 또는 showPopup이 false로 변경될 때 스크롤 복원
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      // document.body.style.overflow = 'unset'; // 컴포넌트 언마운트 시 스크롤 복원
+      document.body.style.overflow = 'unset';
     };
-  }, [showPopup]); // showPopup 상태에 따라 리스너 추가/제거
+  }, [showPopup]);
 
   const fetchActivePopups = useCallback(async () => {
     try {
@@ -217,12 +208,15 @@ const PopupModal: React.FC<PopupModalProps> = ({ popupToPreview, isPreview = fal
                     <img
                       src={currentPopup.image_url}
                       alt={currentPopup.title}
-                      className="w-full h-auto rounded-lg mb-4"
+                      className="w-full h-auto max-h-60 object-contain mb-4"
                     />
                   )}
-                  {currentPopup.content && (
-                    <div className="text-sm text-gray-500" dangerouslySetInnerHTML={{ __html: currentPopup.content }} />
-                  )}
+                  <div className="text-sm text-gray-700 mb-4">
+                    <h3 id="modal-title" className="text-lg leading-6 font-medium text-gray-900 mb-2">
+                      {currentPopup.title}
+                    </h3>
+                    <div dangerouslySetInnerHTML={{ __html: currentPopup.content || '' }} />
+                  </div>
                 </div>
               </div>
             </div>
