@@ -18,6 +18,7 @@ interface Notice {
 interface Business {
   id: string;
   name: string;
+  status: 'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled';
 }
 
 const NoticeForm = () => {
@@ -45,10 +46,11 @@ const NoticeForm = () => {
     try {
       const { data, error } = await supabase
         .from('businesses')
-        .select('id, name')
+        .select('id, name, status')
         .order('name');
       if (error) throw error;
-      setBusinesses(data || []);
+      const activeBusinesses = data?.filter(b => b.status === 'draft' || b.status === 'recruiting') || [];
+      setBusinesses(activeBusinesses);
     } catch (err) {
       console.error('Error fetching businesses:', err);
       const typedError = err as { message?: string };

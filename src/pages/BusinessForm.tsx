@@ -7,7 +7,7 @@ interface Business {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'upcoming';
+  status: 'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled';
   start_date: string;
   end_date: string;
   created_at: string;
@@ -25,10 +25,17 @@ const BusinessForm = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<'active' | 'inactive' | 'upcoming'>('upcoming');
+  const [status, setStatus] = useState<'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled'>('draft');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [maxParticipants, setMaxParticipants] = useState<number | undefined>(undefined);
+
+  const getUiStatus = (dbStatus: Business['status']): 'draft' | 'recruiting' | 'closed' => {
+    if (dbStatus === 'draft') return 'draft';
+    if (dbStatus === 'recruiting') return 'recruiting';
+    if (['closed', 'completed', 'cancelled'].includes(dbStatus)) return 'closed';
+    return 'draft';
+  };
 
   useEffect(() => {
     if (isEditMode) {
@@ -196,13 +203,15 @@ const BusinessForm = () => {
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">상태</label>
                 <select
                   id="status"
-                  value={status}
-                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setStatus(e.target.value as Business['status'])}
+                  value={getUiStatus(status)}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                    setStatus(e.target.value as 'draft' | 'recruiting' | 'closed');
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white transition-shadow"
                 >
-                  <option value="upcoming">진행 예정</option>
-                  <option value="active">진행 중</option>
-                  <option value="inactive">종료</option>
+                  <option value="draft">준비중</option>
+                  <option value="recruiting">모집중</option>
+                  <option value="closed">종료</option>
                 </select>
               </div>
 
