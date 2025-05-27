@@ -34,7 +34,7 @@ interface Business {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'upcoming';
+  status: 'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled';
   start_date: string;
   end_date: string;
   created_at: string;
@@ -69,6 +69,9 @@ interface CKUploadAdapter {
   abort(): void;
 }
 
+// AdminDashboard 컴포넌트 내부 최상단 또는 interface 정의 바로 아래 등에 위치
+type ApplicationSortKey = keyof Application | 'business';
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -84,7 +87,7 @@ const AdminDashboard = () => {
 
   const [newBusinessName, setNewBusinessName] = useState('');
   const [newBusinessDescription, setNewBusinessDescription] = useState('');
-  const [newBusinessStatus, setNewBusinessStatus] = useState<'active' | 'inactive' | 'upcoming'>('upcoming');
+  const [newBusinessStatus, setNewBusinessStatus] = useState<'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled'>('draft');
   const [newBusinessStartDate, setNewBusinessStartDate] = useState('');
   const [newBusinessEndDate, setNewBusinessEndDate] = useState('');
   const [newBusinessMaxParticipants, setNewBusinessMaxParticipants] = useState<number | undefined>(undefined);
@@ -92,7 +95,7 @@ const AdminDashboard = () => {
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [editBusinessName, setEditBusinessName] = useState('');
   const [editBusinessDescription, setEditBusinessDescription] = useState('');
-  const [editBusinessStatus, setEditBusinessStatus] = useState<'active' | 'inactive' | 'upcoming'>('upcoming');
+  const [editBusinessStatus, setEditBusinessStatus] = useState<'draft' | 'recruiting' | 'closed' | 'completed' | 'cancelled'>('draft');
   const [editBusinessStartDate, setEditBusinessStartDate] = useState('');
   const [editBusinessEndDate, setEditBusinessEndDate] = useState('');
   const [editBusinessMaxParticipants, setEditBusinessMaxParticipants] = useState<number | undefined>(undefined);
@@ -114,7 +117,7 @@ const AdminDashboard = () => {
   const [noticeSearchTerm, setNoticeSearchTerm] = useState('');
   const [noticeVisibilityFilter, setNoticeVisibilityFilter] = useState<'' | 'visible' | 'hidden'>('');
   
-  const editorRef = useRef<ClassicEditor | null>(null);
+  const editorRef = useRef<InstanceType<typeof ClassicEditor> | null>(null);
 
   // Determine if the current page is a form page based on the path
   const [isFormPage, setIsFormPage] = useState(false);
@@ -127,7 +130,7 @@ const AdminDashboard = () => {
 
   // 정렬 상태 추가
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Popup;
+    key: ApplicationSortKey | null;
     direction: 'ascending' | 'descending' | null;
   }>({ key: 'created_at', direction: 'descending' });
 
@@ -255,7 +258,7 @@ const AdminDashboard = () => {
         setBusinesses([data[0], ...businesses]);
         setNewBusinessName('');
         setNewBusinessDescription('');
-        setNewBusinessStatus('upcoming');
+        setNewBusinessStatus('draft');
         setNewBusinessStartDate('');
         setNewBusinessEndDate('');
         setNewBusinessMaxParticipants(undefined);
@@ -619,15 +622,13 @@ const AdminDashboard = () => {
   };
 
   // 정렬 함수 추가
-  const handleSort = (key: keyof Popup) => {
+  const handleSort = (key: ApplicationSortKey) => {
     setSortConfig(current => {
       if (current.key === key) {
-        // 같은 컬럼을 클릭한 경우 asc -> desc -> null 순으로 변경
         if (current.direction === 'ascending') return { key, direction: 'descending' };
         if (current.direction === 'descending') return { key: null, direction: null };
         return { key, direction: 'ascending' };
       }
-      // 다른 컬럼을 클릭한 경우 오름차순으로 시작
       return { key, direction: 'ascending' };
     });
   };
@@ -637,38 +638,38 @@ const AdminDashboard = () => {
     const filteredApplications = getFilteredApplications();
     if (!sortConfig.key || !sortConfig.direction) return filteredApplications;
 
+    const { key, direction } = sortConfig;
+    const dir = direction === 'ascending' ? 1 : -1;
+
     return [...filteredApplications].sort((a, b) => {
-      if (sortConfig.key === 'created_at') {
+      if (key === 'created_at') {
         const dateA = new Date(a.created_at).getTime();
         const dateB = new Date(b.created_at).getTime();
-        return sortConfig.direction === 'ascending' ? dateA - dateB : dateB - dateA;
+        return (dateA - dateB) * dir;
       }
       
-      if (sortConfig.key === 'business') {
-        const businessA = businesses.find(b => b.id === a.business_id)?.name || '';
-        const businessB = businesses.find(b => b.id === b.business_id)?.name || '';
-        return sortConfig.direction === 'ascending'
-          ? businessA.localeCompare(businessB)
-          : businessB.localeCompare(businessA);
+      if (key === 'business') {
+        const businessA = businesses.find(biz => biz.id === a.business_id)?.name?.toLowerCase() || '';
+        const businessB = businesses.find(biz => biz.id === b.business_id)?.name?.toLowerCase() || '';
+        return businessA.localeCompare(businessB) * dir;
       }
 
-      if (sortConfig.key === 'status') {
-        const statusOrder = { pending: 0, approved: 1, rejected: 2 };
+      if (key === 'status') {
+        const statusOrder: { [key in Application['status']]: number } = { pending: 0, approved: 1, rejected: 2 };
         const orderA = statusOrder[a.status];
         const orderB = statusOrder[b.status];
-        return sortConfig.direction === 'ascending' ? orderA - orderB : orderB - orderA;
+        return (orderA - orderB) * dir;
       }
-
-      const valueA = a[sortConfig.key]?.toString().toLowerCase() || '';
-      const valueB = b[sortConfig.key]?.toString().toLowerCase() || '';
-      return sortConfig.direction === 'ascending'
-        ? valueA.localeCompare(valueB)
-        : valueB.localeCompare(valueA);
+      
+      const valA = a[key as keyof Application]?.toString().toLowerCase() || '';
+      const valB = b[key as keyof Application]?.toString().toLowerCase() || '';
+      
+      return valA.localeCompare(valB) * dir;
     });
   };
 
   // 정렬 방향 표시 아이콘 컴포넌트
-  const SortIcon = ({ columnKey }: { columnKey: keyof Popup }) => {
+  const SortIcon = ({ columnKey }: { columnKey: ApplicationSortKey }) => {
     if (sortConfig.key !== columnKey) return <span className="ml-1 inline-block w-4">&nbsp;</span>;
     if (sortConfig.direction === 'ascending') return <span className="ml-1 inline-block w-4">↑</span>;
     if (sortConfig.direction === 'descending') return <span className="ml-1 inline-block w-4">↓</span>;
@@ -758,6 +759,17 @@ const AdminDashboard = () => {
 
   if (loading) return <div className="flex justify-center items-center h-screen"><p className="text-xl">로딩 중...</p></div>;
   
+  const getBusinessStatusStyleAndText = (status: Business['status']) => {
+    switch (status) {
+      case 'draft': return { style: 'bg-slate-100 text-slate-700', text: '준비중' };
+      case 'recruiting': return { style: 'bg-blue-100 text-blue-800', text: '모집중' };
+      case 'closed': return { style: 'bg-yellow-100 text-yellow-800', text: '모집마감' };
+      case 'completed': return { style: 'bg-green-100 text-green-800', text: '완료' };
+      case 'cancelled': return { style: 'bg-red-100 text-red-700', text: '취소' };
+      default: return { style: 'bg-gray-100 text-gray-500', text: '알수없음' };
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'applications':
@@ -1028,9 +1040,11 @@ const AdminDashboard = () => {
                 className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-shadow"
               >
                 <option value="">모든 상태</option>
-                <option value="upcoming">진행 예정</option>
-                <option value="active">진행 중</option>
-                <option value="inactive">종료</option>
+                <option value="draft">준비중</option>
+                <option value="recruiting">모집중</option>
+                <option value="closed">모집마감</option>
+                <option value="completed">완료</option>
+                <option value="cancelled">취소</option>
               </select>
             </div>
 
@@ -1063,11 +1077,8 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{business.name}</td>
                             <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={business.description}>{business.description}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                ${business.status === 'active' ? 'bg-blue-100 text-blue-800' :
-                                  business.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
-                                  'bg-yellow-100 text-yellow-800'}`}>
-                                {business.status === 'active' ? '진행 중' : business.status === 'inactive' ? '종료' : '진행 예정'}
+                              <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getBusinessStatusStyleAndText(business.status).style}`}>
+                                {getBusinessStatusStyleAndText(business.status).text}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -1485,7 +1496,7 @@ const AdminDashboard = () => {
       {showPreviewModal && selectedPopupForPreview && (
         <PopupModal
           isPreview={true}
-          popupToPreview={selectedPopupForPreview}
+          popupToPreview={{...selectedPopupForPreview, content: selectedPopupForPreview.content ?? ''}}
           onClosePreview={handleClosePreview}
         />
       )}
