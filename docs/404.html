@@ -24,15 +24,12 @@
   <body>
     <div id="root"></div>
     <script>
-      // 세션 저장소에서 경로 가져오기 (l = location)
-      const l = sessionStorage.getItem('l');
-      // 경로가 존재하고, 현재 경로가 루트(/)가 아니며, 저장된 경로와 현재 경로가 다를 경우에만 실행
-      if (l && window.location.pathname !== '/' && l !== window.location.pathname + window.location.search) {
-        // 저장된 경로에서 'l' 항목 제거
-        sessionStorage.removeItem('l');
-        // 저장된 경로로 이동 (history.replaceState를 사용하여 브라우저 히스토리에 남기지 않음)
-        window.history.replaceState(null, null, l);
-      }
+      // 현재 경로 (쿼리 문자열 포함) 가져오기
+      const path = window.location.pathname + window.location.search;
+      // 경로를 세션 저장소에 저장 (l = location)
+      sessionStorage.setItem('l', path);
+      // 루트의 index.html로 리다이렉션 (프로젝트 이름이 저장소 이름과 같다면 base 경로 수정 필요 없음)
+      window.location.replace(window.location.origin + '/');
     </script>
   </body>
 </html>
