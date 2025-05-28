@@ -9,8 +9,8 @@ declare global {
 
 const LocationSection = () => {
   // 대전광역시 대덕대로 317번길 20 선사엔조이 5층의 좌표
-  const latitude = 36.3504119;
-  const longitude = 127.3845475;
+  const latitude = 36.361505;
+  const longitude = 127.378769;
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
