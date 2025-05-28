@@ -1,0 +1,48 @@
+제목: 네이버 지도 API (JavaScript v3) 인증 실패 오류 (에러 코드 200) 문의
+
+안녕하세요. 네이버 클라우드 플랫폼을 통해 네이버 지도 API (JavaScript v3)를 사용 중입니다.
+Client ID와 Web 서비스 URL을 정확히 설정했음에도 불구하고 지속적으로 "Authentication Failed" (에러 코드 200) 오류가 발생하여 문의드립니다.
+
+[계정 및 애플리케이션 정보]
+- 네이버 클라우드 플랫폼 계정 ID: (사용자님 계정 ID)
+- 애플리케이션 이름: hbshooting
+- Client ID: ilf4jfuu23
+
+[현재 설정 상태]
+1. API 선택 (권한):
+   - Dynamic Map, Static Map, Directions 5, Directions 15, Geocoding, Reverse Geocoding 모두 선택됨 (첨부 스크린샷 1 참조)
+
+2. Web 서비스 URL 등록 (첨부 스크린샷 2 참조 - 이전 대화의 스크린샷 활용):
+   - http://hbshooting.com
+   - https://hbshooting.com
+   - http://hbshooting.com/
+   - https://hbshooting.com/
+   - https://jewa-bro.github.io/newshooting/  (테스트용 GitHub Pages URL)
+   - (네이버 가이드에 따라 'www'는 제외하고 대표 도메인 위주로 등록했습니다.)
+
+3. 웹사이트 접속 URL 및 API 호출 정보:
+   - 현재 테스트 중인 GitHub Pages URL: https://jewa-bro.github.io/newshooting/
+   - 해당 페이지에서 발생하는 네이버 지도 API 스크립트 호출 시 URI: https://jewa-bro.github.io/newshooting/ (오류 메시지 기준)
+   - 최종적으로 사용할 커스텀 도메인: https://www.hbshooting.com/ (또는 http)
+
+4. 오류 메시지:
+   - NAVER Maps JavaScript API v3 네이버 지도 Open API 인증이 실패하였습니다. 클라이언트 아이디와 웹 서비스 URL을 확인해 주세요.
+   - Error Code / Error Message: 200 / Authentication Failed
+   - Client ID: ilf4jfuu23
+   - URI: https://jewa-bro.github.io/newshooting/ (또는 커스텀 도메인 사용 시 해당 URI)
+
+[시도해본 사항]
+- Client ID 정확성 반복 확인
+- Web 서비스 URL 등록 정확성 반복 확인 (프로토콜, 마지막 슬래시(/) 등)
+- Vite 프로젝트의 base 설정 변경 테스트 (루트 경로, 저장소명 경로)
+- GitHub Pages 기본 URL 및 커스텀 도메인 번갈아 테스트
+- 브라우저 캐시 삭제 및 시크릿 모드 테스트
+
+[질문]
+1. 위와 같이 모든 설정을 확인했음에도 불구하고, 등록된 Web 서비스 URL('https://jewa-bro.github.io/newshooting/')에서 Client ID 'ilf4jfuu23'에 대한 인증이 실패하는(에러 코드 200) 정확한 원인이 무엇인지 확인 부탁드립니다.
+2. 네이버 클라우드 플랫폼의 "www는 빼고 대표 도메인만 입력" 가이드에 따라 'hbshooting.com'을 등록했을 때, 실제 서비스는 'www.hbshooting.com'으로 이루어질 경우, 'www.hbshooting.com'에서 발생하는 API 요청이 정상적으로 인증될 수 있는 메커니즘인지, 아니면 추가적인 설정이 필요한지 궁금합니다.
+3. 현재 제 계정 또는 Client ID 'ilf4jfuu23'에 다른 제약 사항이나 문제가 있는지 확인 부탁드립니다.
+
+문제 해결을 위한 확인 및 지원을 요청드립니다. 감사합니다.
+
+(첨부 파일: 관련 설정 스크린샷 2장) 
