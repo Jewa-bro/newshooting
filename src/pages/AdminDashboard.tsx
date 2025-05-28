@@ -660,7 +660,7 @@ const AdminDashboard = () => {
         const orderB = statusOrder[b.status];
         return (orderA - orderB) * dir;
       }
-      
+
       const valA = a[key as keyof Application]?.toString().toLowerCase() || '';
       const valB = b[key as keyof Application]?.toString().toLowerCase() || '';
       
@@ -769,7 +769,7 @@ const AdminDashboard = () => {
       default: return { style: 'bg-gray-100 text-gray-500', text: '알수없음' };
     }
   };
-
+  
   const renderContent = () => {
     switch (activeTab) {
       case 'applications':
