@@ -65,8 +65,8 @@ const LocationSection = () => {
     // 네이버 지도 API 스크립트 로드
     if (!window.naver) {
       const script = document.createElement('script');
-      script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ilf4jfuu23`;
-      script.onload = initMap;
+      script.async = true;
+      script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=ilf4jfuu23`;
       document.head.appendChild(script);
     } else {
       initMap();
