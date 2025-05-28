@@ -23,11 +23,11 @@ const LocationSection = () => {
           scaleControl: false,
           logoControl: false,
           mapDataControl: false,
-          zoomControl: false,
-          draggable: false,
-          scrollWheel: false,
-          disableDoubleClickZoom: true,
-          disableKineticPan: true,
+          zoomControl: true,
+          draggable: true,
+          scrollWheel: true,
+          disableDoubleClickZoom: false,
+          disableKineticPan: false,
           keyboardShortcuts: false,
         };
 
@@ -91,7 +91,7 @@ const LocationSection = () => {
               
               <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center gap-2">
                 <a 
-                  href="https://map.naver.com/p/directions/-/-/-/transit?c=15.00,0,0,0,dh&destination=place%2F16292781" 
+                  href="https://map.naver.com/p/directions/-/transit?destination=%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C%20%EC%84%9C%EA%B5%AC%20%EB%8C%80%EB%8D%95%EB%8C%80%EB%A1%9C317%EB%B2%88%EA%B8%B8%2020%20%EC%84%A0%EC%82%AC%EC%97%94%EC%A1%B0%EC%9D%B4" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-blue-900 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-800 transition-colors"
