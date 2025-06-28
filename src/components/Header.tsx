@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import logoSrc from '/logo.svg';
 
 const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [showHeader, setShowHeader] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { triggerAnimation } = useAnimation();
   const location = useLocation();
@@ -12,9 +12,20 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      // IntroSection이 화면에서 벗어나는 시점을 계산
+      const introSection = document.getElementById('intro');
+      if (introSection) {
+        const introHeight = introSection.offsetHeight;
+        const scrollPosition = window.scrollY;
+        // IntroSection의 90%가 스크롤되었을 때 헤더 표시
+        const shouldShowHeader = scrollPosition >= introHeight * 0.9;
+        setShowHeader(shouldShowHeader);
+      }
     };
 
+    // 초기에도 한 번 체크
+    handleScroll();
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -55,12 +66,15 @@ const Header = () => {
   const isDetailPage = location.pathname.includes('/notice/') || location.pathname.includes('/apply');
   const isHomePage = location.pathname === '/';
 
+  // 홈페이지가 아닌 페이지에서는 항상 헤더 표시
+  const shouldShowHeader = !isHomePage || showHeader;
+
   return (
     <header 
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled || !isHomePage ? 'bg-white/95 backdrop-blur-sm shadow-md py-2' : 'bg-black/20 backdrop-blur-sm py-3'
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-sm shadow-md py-2 ${
+        shouldShowHeader ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
       }`}
-      style={{ transform: 'none' }}
+      style={{ transform: shouldShowHeader ? 'translateY(0)' : 'translateY(-100%)' }}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div 
@@ -74,7 +88,7 @@ const Header = () => {
           />
           <h1 
             className={`text-lg sm:text-xl font-bold transition-colors duration-300 ${
-              isScrolled || !isHomePage ? 'text-blue-900' : 'text-white'
+              shouldShowHeader ? 'text-blue-900' : 'text-white'
             }`}
           >
             대전HB슈팅클럽
@@ -87,7 +101,7 @@ const Header = () => {
               <li key={index}>
                 <button
                   className={`font-medium text-sm lg:text-base transition-colors duration-300 hover:text-blue-700 ${
-                    isScrolled || !isHomePage ? 'text-gray-800' : 'text-white'
+                    shouldShowHeader ? 'text-gray-800' : 'text-white'
                   }`}
                   onClick={() => scrollToSection(section)}
                 >
@@ -109,13 +123,13 @@ const Header = () => {
           aria-label="메뉴 열기"
         >
           <div className={`w-6 h-0.5 mb-1.5 transition-all duration-300 ${
-            isScrolled || !isHomePage ? 'bg-gray-800' : 'bg-white'
+            shouldShowHeader ? 'bg-gray-800' : 'bg-white'
           } ${mobileMenuOpen ? 'transform rotate-45 translate-y-2' : ''}`} />
           <div className={`w-6 h-0.5 mb-1.5 transition-all duration-300 ${
-            isScrolled || !isHomePage ? 'bg-gray-800' : 'bg-white'
+            shouldShowHeader ? 'bg-gray-800' : 'bg-white'
           } ${mobileMenuOpen ? 'opacity-0' : ''}`} />
           <div className={`w-6 h-0.5 transition-all duration-300 ${
-            isScrolled || !isHomePage ? 'bg-gray-800' : 'bg-white'
+            shouldShowHeader ? 'bg-gray-800' : 'bg-white'
           } ${mobileMenuOpen ? 'transform -rotate-45 -translate-y-2' : ''}`} />
         </button>
       </div>
@@ -124,6 +138,9 @@ const Header = () => {
         className={`md:hidden fixed left-0 right-0 bg-white shadow-lg transition-all duration-300 ease-in-out ${
           mobileMenuOpen ? 'max-h-[calc(100vh-4rem)] overflow-y-auto' : 'max-h-0 overflow-hidden'
         }`}
+        style={{
+          top: shouldShowHeader ? '64px' : '-100vh'
+        }}
       >
         <ul className="py-2 px-4">
           {['intro', 'instructor', 'notice', 'pricing', 'location', 'contact'].map((section, index) => (

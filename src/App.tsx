@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import IntroSection from './components/IntroSection';
 import InstructorSection from './components/InstructorSection';
@@ -20,11 +20,29 @@ import PopupModal from './components/PopupModal';
 
 const AppContent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isMainPage = location.pathname === '/'; // Check if it's the main page
+
+  useEffect(() => {
+    // Handle 404 redirect recovery
+    const redirectedPath = sessionStorage.getItem('redirect');
+    if (redirectedPath) {
+      sessionStorage.removeItem('redirect');
+      navigate(redirectedPath, { replace: true });
+    }
+  }, [navigate]);
+
+  // Scroll to top on main page load/refresh or navigation to main page
+  useEffect(() => {
+    if (isMainPage) {
+      window.scrollTo(0, 0);
+    }
+  }, [isMainPage]); // Re-run when isMainPage changes (e.g. navigating to or from main page)
 
   return (
     <AnimationProvider>
-      {!isAdminPage && <OpeningAnimation />}
+      {isMainPage && !isAdminPage && <OpeningAnimation />}
       {!isAdminPage && <Header />}
       <MainContent />
     </AnimationProvider>
@@ -35,20 +53,21 @@ const MainContent = () => {
   const { mainPageOpacity, triggerAnimation, hasAnimationPlayedOnce } = useAnimation();
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isMainPage = location.pathname === '/'; // Check if it's the main page
   
   useEffect(() => {
-    // 어드민 페이지가 아닐 때만 애니메이션 표시
-    if (!isAdminPage) {
+    // Trigger opening animation sequence only on the main, non-admin page
+    if (isMainPage && !isAdminPage) {
       triggerAnimation();
     }
-  }, [isAdminPage, triggerAnimation, location.pathname]);
+  }, [isMainPage, isAdminPage, triggerAnimation]); // Dependencies updated
   
   return (
     <div 
       className="font-sans text-gray-800 bg-gray-50 transition-opacity duration-500"
       style={{ opacity: mainPageOpacity }}
     >
-      {!isAdminPage && hasAnimationPlayedOnce && <PopupModal />}
+      {isMainPage && !isAdminPage && hasAnimationPlayedOnce && <PopupModal />}
       <Routes>
         <Route path="/" element={
           <main>

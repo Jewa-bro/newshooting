@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>페이지를 찾을 수 없습니다 - HB슈팅클럽</title>
+  <script type="text/javascript">
+    // 현재 경로 (예: /notice/some-id) 와 쿼리, 해시를 sessionStorage에 저장합니다.
+    sessionStorage.redirect = window.location.pathname + window.location.search + window.location.hash;
+
+    // 사이트의 루트 (index.html이 있는 곳)로 리디렉션합니다.
+    // 커스텀 도메인 (hbshooting.com)을 사용하고 있고, vite.config.ts의 base가 '/'이므로,
+    // window.location.origin + '/' 또는 그냥 '/'로 리디렉션 할 수 있습니다.
+    // import.meta.env.BASE_URL을 여기서 직접 사용할 수 없으므로,
+    // 설정된 커스텀 도메인과 Vite의 base 설정에 의존합니다.
+    window.location.replace('/'); 
+  </script>
+</head>
+<body>
+  페이지를 로드 중입니다... 만약 자동으로 리디렉션되지 않으면 <a href="/">여기를 클릭하세요</a>.
+</body>
+</html> 

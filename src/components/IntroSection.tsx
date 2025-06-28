@@ -1,14 +1,49 @@
 import React, { useState, useEffect } from 'react';
 
 const IntroSection = () => {
-  const slideImages = [
+  // 데스크톱용 이미지
+  const desktopImages = [
     `${import.meta.env.BASE_URL}images/slide_image_1.jpg`,
     `${import.meta.env.BASE_URL}images/slide_image_2.jpg`,
     `${import.meta.env.BASE_URL}images/slide_image_3.jpg`
   ];
 
+  // 모바일용 이미지 (필요시 별도 이미지로 교체 가능)
+  const mobileImages = [
+    `${import.meta.env.BASE_URL}images/slide_mobile_1.png`,
+    `${import.meta.env.BASE_URL}images/slide_mobile_2.png`,
+    `${import.meta.env.BASE_URL}images/slide_mobile_3.png`
+  ];
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 화면 크기 감지
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const newIsMobile = window.innerWidth < 768; // 768px 미만을 모바일로 간주
+      
+      // 화면 크기가 변경되면 슬라이드를 첫 번째로 리셋
+      if (newIsMobile !== isMobile) {
+        setCurrentSlide(0);
+        setFadeIn(true);
+      }
+      
+      setIsMobile(newIsMobile);
+    };
+
+    // 초기 실행
+    checkScreenSize();
+
+    // 리사이즈 이벤트 리스너
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, [isMobile]);
+
+  // 현재 화면 크기에 맞는 이미지 배열 선택
+  const slideImages = isMobile ? mobileImages : desktopImages;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,7 +60,7 @@ const IntroSection = () => {
   return (
     <section 
       id="intro" 
-      className="relative h-[38vh] sm:h-[calc(100vh-4rem)] md:h-screen flex items-center justify-center pt-8 sm:pt-16 md:pt-0"
+      className="relative h-[100vh] flex items-center justify-center"
     >
       <div 
         className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}
@@ -38,7 +73,7 @@ const IntroSection = () => {
           대전HB슈팅클럽
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl text-white opacity-90 max-w-2xl mx-auto leading-relaxed px-4">
-          안전한 레이저 사격으로 즐기는 실내 데이트의 명소
+          안전한 레이저 사격으로 즐기는 실내 레저스포즈
         </p>
         <div className="mt-8 sm:mt-10 mb-16">
           <button 

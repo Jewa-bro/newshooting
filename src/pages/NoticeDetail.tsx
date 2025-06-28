@@ -28,32 +28,26 @@ const NoticeDetail = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchNotice = async () => {
-    console.log('[NoticeDetail] fetchNotice called. ID from closure:', id);
-
-    if (!id) {
-      console.warn('[NoticeDetail] fetchNotice called without an ID. Aborting fetch.');
+  const fetchNoticeData = async (noticeId: string | undefined) => {
+    if (!noticeId) {
+      console.warn('[NoticeDetail] fetchNoticeData called without an ID. Aborting fetch.');
       setNotice(null);
       setBusiness(null);
-      console.log('[NoticeDetail] Setting loading to false (id is null/undefined)');
       setLoading(false);
       return;
     }
 
-    console.log(`[NoticeDetail] Proceeding to fetch notice for ID: ${id}. Setting loading to true.`);
+    console.log(`[NoticeDetail] Proceeding to fetch notice for ID: ${noticeId}. Setting loading to true.`);
     setLoading(true);
     try {
-      console.log(`[NoticeDetail] Attempting to fetch notice for ID: ${id} from Supabase.`);
+      console.log(`[NoticeDetail] Attempting to fetch notice for ID: ${noticeId} from Supabase.`);
       
-      console.log(`[NoticeDetail] Preparing Supabase query for notices, ID: ${id}.`);
-      const noticePromise = supabase
+      const { data: noticeData, error: noticeError } = await supabase
         .from('notices')
         .select('*')
-        .eq('id', id)
+        .eq('id', noticeId)
         .single();
-      console.log(`[NoticeDetail] Supabase notice query promise created for ID: ${id}. Awaiting...`);
-      const { data: noticeData, error: noticeError } = await noticePromise;
-      console.log(`[NoticeDetail] Supabase notice query awaited for ID: ${id}. Error: ${JSON.stringify(noticeError)}, HasData: ${!!noticeData}`);
+      console.log(`[NoticeDetail] Supabase notice query awaited for ID: ${noticeId}. Error: ${JSON.stringify(noticeError)}, HasData: ${!!noticeData}`);
 
       if (noticeError) {
         console.error('Error fetching notice data:', noticeError);
@@ -88,46 +82,51 @@ const NoticeDetail = () => {
         }
       }
     } catch (error: any) {
-      console.error('Overall error in fetchNotice (outer catch):', error);
+      console.error('Overall error in fetchNoticeData (outer catch):', error);
       setNotice(null);
       setBusiness(null);
     } finally {
-      console.log('[NoticeDetail] fetchNotice finished. Attempting to set loading to false.');
+      console.log(`[NoticeDetail] fetchNoticeData finished for ID: ${noticeId}. Attempting to set loading to false.`);
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    let isActive = true;
+
     console.log('[NoticeDetail] useEffect runs. Current ID from useParams:', id);
-    console.log('[NoticeDetail] Initial call to fetchNotice from useEffect.');
-    fetchNotice();
+
+    if (id) {
+      console.log('[NoticeDetail] ID is present. Calling fetchNoticeData.');
+      fetchNoticeData(id);
+    } else {
+      console.log('[NoticeDetail] useEffect: ID is not available. Setting loading to false.');
+      if (isActive) {
+        setLoading(false);
+        setNotice(null);
+        setBusiness(null);
+      }
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: SupabaseSession | null) => {
-        console.log(`[NoticeDetail Auth] Event: ${event}, Session: ${session ? 'exists' : 'null'}. Current ID: ${id}`);
-        
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-            console.log(`[NoticeDetail Auth] Relevant auth event ${event}. Preparing to call fetchNotice.`);
-            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-              console.log(`[NoticeDetail Auth] Adding 100ms delay for ${event} before calling fetchNotice.`);
-              await new Promise(resolve => setTimeout(resolve, 100));
-              console.log(`[NoticeDetail Auth] Delay finished for ${event}. Now calling fetchNotice.`);
-            }
-            await fetchNotice();
-        } else if (event === 'SIGNED_OUT') {
-            console.log('[NoticeDetail Auth] User SIGNED_OUT. Setting loading to false.');
-            setLoading(false); 
+        if (!isActive) {
+          console.log('[NoticeDetail Auth] Listener called, but isActive is false. Aborting.');
+          return;
         }
+        console.log(`[NoticeDetail Auth] Event: ${event}, Session: ${session ? 'exists' : 'null'}. Current ID in useEffect closure: ${id}`);
       }
     );
     
     return () => {
-      console.log('[NoticeDetail] Cleaning up onAuthStateChange listener.');
+      console.log('[NoticeDetail] Cleaning up useEffect.');
+      isActive = false;
       if (authListener && authListener.subscription) {
+        console.log('[NoticeDetail] Unsubscribing from onAuthStateChange listener.');
         authListener.subscription.unsubscribe();
       }
     };
-  }, [id, supabase]);
+  }, [id]);
 
   const handleGoToList = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();

@@ -120,26 +120,28 @@ const NoticeSection = () => {
                     <div className="flex items-start">
                       <Bell className="h-5 w-5 text-red-600 mr-4 mt-1 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
-                              {notice.title}
-                            </h3>
-                            {isNew && (
-                              <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                                NEW
-                              </span>
-                            )}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start gap-2 mb-1">
+                              <h3 className="text-lg font-semibold text-gray-900 sm:line-clamp-1 flex-1">
+                                {notice.title}
+                              </h3>
+                              {isNew && (
+                                <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full flex-shrink-0 mt-0.5">
+                                  NEW
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500">
+                              {new Date(notice.created_at).toLocaleDateString()}
+                            </p>
                           </div>
                           {activeNotice === notice.id ? (
-                            <ChevronUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                            <ChevronUp className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
                           ) : (
-                            <ChevronDown className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                            <ChevronDown className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
                           )}
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {new Date(notice.created_at).toLocaleDateString()}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -152,20 +154,22 @@ const NoticeSection = () => {
                     <div className="p-5 border-t border-gray-100">
                       <div 
                         ref={el => contentRefs.current[notice.id] = el}
-                        className="text-gray-700 leading-relaxed mb-4 overflow-hidden rich-text-content"
+                        className="text-gray-700 leading-relaxed mb-4 overflow-hidden rich-text-content line-clamp-10"
                         dangerouslySetInnerHTML={{ __html: notice.content }} 
                       >
                       </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDetailClick(notice.id);
-                        }}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        자세히 보기
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </button>
+                      <div className="flex justify-center">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDetailClick(notice.id);
+                          }}
+                          className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
+                        >
+                          자세히 보기
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
