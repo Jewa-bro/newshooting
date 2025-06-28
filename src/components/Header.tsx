@@ -97,7 +97,7 @@ const Header = () => {
 
         <nav className="hidden md:block">
           <ul className="flex gap-6">
-            {['intro', 'instructor', 'notice', 'pricing', 'location', 'contact'].map((section, index) => (
+            {['intro', 'video', 'instructor', 'notice', 'pricing', 'location', 'contact'].map((section, index) => (
               <li key={index}>
                 <button
                   className={`font-medium text-sm lg:text-base transition-colors duration-300 hover:text-blue-700 ${
@@ -106,6 +106,7 @@ const Header = () => {
                   onClick={() => scrollToSection(section)}
                 >
                   {section === 'intro' && '소개'}
+                  {section === 'video' && '소개 영상'}
                   {section === 'instructor' && '지도자 약력'}
                   {section === 'notice' && '공지사항'}
                   {section === 'pricing' && '가격안내'}
@@ -143,13 +144,14 @@ const Header = () => {
         }}
       >
         <ul className="py-2 px-4">
-          {['intro', 'instructor', 'notice', 'pricing', 'location', 'contact'].map((section, index) => (
+          {['intro', 'video', 'instructor', 'notice', 'pricing', 'location', 'contact'].map((section, index) => (
             <li key={index} className="border-b border-gray-100 last:border-none">
               <button
                 className="w-full py-4 text-left font-medium text-gray-800 hover:text-blue-700 transition-colors"
                 onClick={() => scrollToSection(section)}
               >
                 {section === 'intro' && '소개'}
+                {section === 'video' && '소개 영상'}
                 {section === 'instructor' && '지도자 약력'}
                 {section === 'notice' && '공지사항'}
                 {section === 'pricing' && '가격안내'}

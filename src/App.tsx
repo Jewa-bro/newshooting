@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import IntroSection from './components/IntroSection';
+import VideoSection from './components/VideoSection';
 import InstructorSection from './components/InstructorSection';
 import NoticeSection from './components/NoticeSection';
 import PricingSection from './components/PricingSection';
@@ -72,6 +73,7 @@ const MainContent = () => {
         <Route path="/" element={
           <main>
             <IntroSection />
+            <VideoSection />
             <InstructorSection />
             <NoticeSection />
             <PricingSection />

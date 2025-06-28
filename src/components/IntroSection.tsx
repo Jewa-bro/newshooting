@@ -73,7 +73,8 @@ const IntroSection = () => {
           대전HB슈팅클럽
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl text-white opacity-90 max-w-2xl mx-auto leading-relaxed px-4">
-          안전한 레이저 사격으로 즐기는 실내 레저스포즈
+          안전한 레이저 사격으로 즐기는<br />
+          실내 스포츠
         </p>
         <div className="mt-8 sm:mt-10 mb-16">
           <button 
