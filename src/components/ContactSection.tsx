@@ -14,7 +14,11 @@ const ContactSection = () => {
           <div className="bg-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 backdrop-blur-sm">
             <div className="text-center mb-6 sm:mb-8">
               <p className="text-blue-100 mb-2">영업시간</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">10:00 - 22:00 (연중무휴)</p>
+              <p className="text-xl sm:text-2xl font-bold text-white">
+                평일 10:00 - 21:00
+                <br />
+                주말 10:00 - 18:00
+              </p>
               <p className="text-2xl sm:text-3xl font-bold mt-4 text-white">010-8246-0314</p>
             </div>
             

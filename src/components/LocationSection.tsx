@@ -135,7 +135,11 @@ const LocationSection = () => {
                   <Clock className="h-5 w-5 text-blue-900 mr-3 flex-shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-800 mb-1">영업시간</h4>
-                    <p className="text-gray-700">10:00 - 22:00 (연중무휴)</p>
+                    <p className="text-gray-700">
+                      평일 10:00 - 21:00
+                      <br />
+                      주말 10:00 - 18:00
+                    </p>
                   </div>
                 </div>
               </div>

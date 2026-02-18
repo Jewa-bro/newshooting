@@ -7,110 +7,101 @@ const PricingSection = () => {
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-4 text-blue-900">가격 안내</h2>
         <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-          대전HB슈팅클럽의 다양한 프로그램을 합리적인 가격으로 이용해보세요
+          사격 체험 및 1:1 강습 프로그램 가격을 안내드립니다
         </p>
         
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* 체험 프로그램 */}
+          {/* 사격 체험 */}
           <div className="bg-gray-50 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-            <div className="bg-blue-900 text-white p-6">
-              <div className="flex items-center mb-2">
-                <Clock className="h-6 w-6 mr-2" />
-                <h3 className="text-xl font-bold">체험 프로그램</h3>
+            <div className="bg-blue-900 text-white p-4">
+              <div className="flex items-center mb-1">
+                <Clock className="h-5 w-5 mr-2" />
+                <h3 className="text-lg font-bold">사격 체험</h3>
               </div>
-              <p className="text-blue-100 text-sm">사격을 처음 접하시는 분들을 위한 프로그램</p>
+              <p className="text-blue-100 text-sm">레이저 / 실탄 사격 체험 프로그램</p>
             </div>
             
             <div className="p-6">
-              <ul className="space-y-4">
-                <li className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <div>
-                    <span className="block font-semibold text-gray-800">1회 체험 (20발)</span>
-                    <span className="text-sm text-gray-500">부담 없이 즐기는 첫 경험</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block line-through text-gray-400 text-sm">2,000원</span>
-                    <span className="block text-red-600 font-bold">무료</span>
-                  </div>
-                </li>
-                
-                <li className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <div>
-                    <span className="block font-semibold text-gray-800">30분 체험</span>
-                    <span className="text-sm text-gray-500">기본 자세와 함께 충분한 체험</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block line-through text-gray-400 text-sm">7,000원</span>
-                    <span className="block text-red-600 font-bold">5,000원</span>
-                  </div>
-                </li>
-                
-                <li className="flex justify-between items-center">
-                  <div>
-                    <span className="block font-semibold text-gray-800">60분 체험</span>
-                    <span className="text-sm text-gray-500">심도 있는 사격 체험</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block line-through text-gray-400 text-sm">12,000원</span>
-                    <span className="block text-red-600 font-bold">9,000원</span>
-                  </div>
-                </li>
-              </ul>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                  <span className="font-semibold text-gray-900">레이저 사격 30분</span>
+                  <span className="text-base font-bold text-gray-900 tabular-nums">7,000원</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                  <span className="font-semibold text-gray-900">레이저 사격 60분</span>
+                  <span className="text-base font-bold text-gray-900 tabular-nums">10,000원</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                  <span className="font-semibold text-gray-900">레이저 사격 60분 + 실탄 10발</span>
+                  <span className="text-base font-bold text-gray-900 tabular-nums">15,000원</span>
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* 강습 프로그램 */}
+          {/* 1:1 강습 */}
           <div className="bg-gray-50 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-            <div className="bg-red-600 text-white p-6">
-              <div className="flex items-center mb-2">
-                <CalendarDays className="h-6 w-6 mr-2" />
-                <h3 className="text-xl font-bold">강습 프로그램</h3>
+            <div className="bg-red-600 text-white p-4">
+              <div className="flex items-center mb-1">
+                <CalendarDays className="h-5 w-5 mr-2" />
+                <h3 className="text-lg font-bold">1:1 강습</h3>
               </div>
-              <p className="text-red-100 text-sm">체계적인 지도와 훈련을 원하시는 분들을 위한 프로그램</p>
+              <p className="text-red-100 text-sm">1개월 1:1 레이저 90분 강습</p>
             </div>
             
             <div className="p-6">
-              <ul className="space-y-4">
-                <li className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <div>
-                    <span className="block font-semibold text-gray-800">주 1회 (월 4회)</span>
-                    <span className="text-sm text-gray-500">기초부터 차근차근 배우기</span>
+              <div className="space-y-6">
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="text-sm font-bold text-gray-800">평일</span>
+                    <span className="h-px flex-1 bg-gray-200" />
                   </div>
-                  <div className="text-right">
-                    <span className="block text-gray-800">평일 100,000원</span>
-                    <span className="block text-gray-800">주말 150,000원</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                      <span className="font-semibold text-gray-900">주 1회 (총 4회)</span>
+                      <span className="text-base font-bold text-gray-900 tabular-nums">120,000원</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                      <span className="font-semibold text-gray-900">주 2회 (총 8회)</span>
+                      <span className="text-base font-bold text-gray-900 tabular-nums">220,000원</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                      <span className="font-semibold text-gray-900">주 3회 (총 12회)</span>
+                      <span className="text-base font-bold text-gray-900 tabular-nums">300,000원</span>
+                    </div>
                   </div>
-                </li>
-                
-                <li className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <div>
-                    <span className="block font-semibold text-gray-800">주 2회 (월 8회)</span>
-                    <span className="text-sm text-gray-500">실력 향상을 위한 집중 훈련</span>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="text-sm font-bold text-gray-800">주말</span>
+                    <span className="h-px flex-1 bg-gray-200" />
                   </div>
-                  <div className="text-right">
-                    <span className="block text-gray-800">평일 200,000원</span>
-                    <span className="block text-gray-800">주말 250,000원</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                      <span className="font-semibold text-gray-900">주 1회 (총 4회)</span>
+                      <span className="text-base font-bold text-gray-900 tabular-nums">140,000원</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200">
+                      <span className="font-semibold text-gray-900">주 2회 (총 8회)</span>
+                      <span className="text-base font-bold text-gray-900 tabular-nums">260,000원</span>
+                    </div>
                   </div>
-                </li>
-                
-                <li className="flex justify-between items-center">
-                  <div>
-                    <span className="block font-semibold text-gray-800">주 3회 (월 12회)</span>
-                    <span className="text-sm text-gray-500">전문가 수준의 고강도 훈련</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="block text-gray-800">평일 300,000원</span>
-                  </div>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
         <div className="mt-10 text-center">
-          <div className="inline-flex items-center bg-blue-50 text-blue-800 rounded-full px-4 py-2">
+          <div className="inline-flex items-center bg-blue-50 text-blue-900 rounded-2xl px-5 py-3">
             <BadgeCheck className="h-5 w-5 mr-2 text-blue-600" />
-            <span className="font-medium">자전거 프로그램 이용 시 10% 할인 혜택</span>
+            <div className="text-left">
+              <div className="font-semibold">전문 선수반 육성 (상담 후 결정)</div>
+              <div className="text-sm text-blue-800/80">목표에 맞춘 훈련 계획과 코칭을 상담 후 안내드립니다</div>
+            </div>
           </div>
         </div>
       </div>
